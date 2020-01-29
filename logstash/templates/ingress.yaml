@@ -1,4 +1,5 @@
 {{- if .Values.ingress.enabled -}}
+---
 {{- $fullName := include "logstash.fullname" . -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -25,7 +26,11 @@ spec:
         {{- range .paths }}
           - path: {{ .path }}
             backend:
-              serviceName: {{ $fullName }}
+              {{- if .name }}
+              serviceName: "{{ $fullName }}-{{ .name }}"
+              {{- else }}
+              serviceName: "{{ $fullName }}"
+              {{- end }}
               servicePort: {{ .port }}
         {{- end }}
   {{- end }}

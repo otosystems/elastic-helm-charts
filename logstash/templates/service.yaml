@@ -1,23 +1,31 @@
-{{- if .Values.service }}
+{{- if .Values.services }}
+{{- range .Values.services }}
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: "{{ template "logstash.fullname" . }}"
+  {{- if .name }}
+  name: "{{ template "logstash.fullname" $ }}-{{ .name }}"
+  {{- else }}
+  name: "{{ template "logstash.fullname" $ }}"
+  {{- end }}
   labels:
-    app: "{{ template "logstash.fullname" . }}"
-    chart: "{{ .Chart.Name }}"
-    heritage: {{ .Release.Service | quote }}
-    release: {{ .Release.Name | quote }}
+    app: "{{ template "logstash.fullname" $ }}"
+    chart: "{{ $.Chart.Name }}"
+    heritage: {{ $.Release.Service | quote }}
+    release: {{ $.Release.Name | quote }}
+{{- with .annotations }}
   annotations:
-{{ toYaml .Values.service.annotations | indent 4 }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .type }}
   selector:
-    app: "{{ template "logstash.fullname" . }}"
-    chart: "{{ .Chart.Name }}"
-    heritage: {{ .Release.Service | quote }}
-    release: {{ .Release.Name | quote }}
+    app: "{{ template "logstash.fullname" $ }}"
+    chart: "{{ $.Chart.Name }}"
+    heritage: {{ $.Release.Service | quote }}
+    release: {{ $.Release.Name | quote }}
   ports:
-{{ toYaml .Values.service.ports | indent 4 }}
+{{ toYaml .ports | indent 4 }}
+{{- end }}
 {{- end }}
